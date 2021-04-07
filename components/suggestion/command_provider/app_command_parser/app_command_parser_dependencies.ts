@@ -41,8 +41,7 @@ export {
     AppCallResponseTypes,
 } from 'mattermost-redux/constants/apps';
 
-import {getAppBindings as getAppsBindings} from 'mattermost-redux/selectors/entities/apps';
-export {getAppsBindings};
+export {makeAppBindingsSelector} from 'mattermost-redux/selectors/entities/apps';
 
 export {getPost} from 'mattermost-redux/selectors/entities/posts';
 export {getChannel, getCurrentChannel, getChannelByName as selectChannelByName} from 'mattermost-redux/selectors/entities/channels';
@@ -51,9 +50,6 @@ export {getUserByUsername as selectUserByUsername} from 'mattermost-redux/select
 
 export {getUserByUsername} from 'mattermost-redux/actions/users';
 export {getChannelByNameAndTeamName} from 'mattermost-redux/actions/channels';
-
-import keyMirror from 'mattermost-redux/utils/key_mirror';
-export {keyMirror};
 
 export {doAppCall} from 'actions/apps';
 import {sendEphemeralPost} from 'actions/global_actions';

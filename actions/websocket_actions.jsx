@@ -58,6 +58,7 @@ import {getConfig, getLicense} from 'mattermost-redux/selectors/entities/general
 import {getChannelsInTeam, getChannel, getCurrentChannel, getCurrentChannelId, getRedirectChannelNameForTeam, getMembersInCurrentChannel, getChannelMembersInChannels} from 'mattermost-redux/selectors/entities/channels';
 import {getPost, getMostRecentPostIdInChannel} from 'mattermost-redux/selectors/entities/posts';
 import {haveISystemPermission, haveITeamPermission} from 'mattermost-redux/selectors/entities/roles';
+import {appsEnabled} from 'mattermost-redux/selectors/entities/apps';
 import {getStandardAnalytics} from 'mattermost-redux/actions/admin';
 
 import {fetchAppBindings} from 'mattermost-redux/actions/apps';
@@ -83,7 +84,6 @@ import {getSiteURL} from 'utils/url';
 import {isGuest} from 'utils/utils';
 import RemovedFromChannelModal from 'components/removed_from_channel_modal';
 import InteractiveDialog from 'components/interactive_dialog';
-import {appsEnabled} from 'utils/apps';
 
 const dispatch = store.dispatch;
 const getState = store.getState;
@@ -183,6 +183,7 @@ export function reconnect(includeWebSocket = true) {
         const mostRecentId = getMostRecentPostIdInChannel(state, currentChannelId);
         const mostRecentPost = getPost(state, mostRecentId);
         dispatch(loadChannelsForCurrentUser());
+        dispatch(handleRefreshAppsBindings());
         if (mostRecentPost) {
             dispatch(syncPostsInChannel(currentChannelId, mostRecentPost.create_at));
         } else {
@@ -484,8 +485,10 @@ export function handleEvent(msg) {
     case SocketEvents.CLOUD_PAYMENT_STATUS_UPDATED:
         dispatch(handleCloudPaymentStatusUpdated(msg));
         break;
+    case SocketEvents.FIRST_ADMIN_VISIT_MARKETPLACE_STATUS_RECEIVED:
+        handleFirstAdminVisitMarketplaceStatusReceivedEvent(msg);
+        break;
 
-    // Apps framework events
     case SocketEvents.APPS_FRAMEWORK_REFRESH_BINDINGS: {
         dispatch(handleRefreshAppsBindings(msg));
         break;
@@ -1376,4 +1379,9 @@ function handleRefreshAppsBindings() {
         }
         return {data: true};
     };
+}
+
+function handleFirstAdminVisitMarketplaceStatusReceivedEvent(msg) {
+    const receivedData = JSON.parse(msg.data.firstAdminVisitMarketplaceStatus);
+    store.dispatch({type: GeneralTypes.FIRST_ADMIN_VISIT_MARKETPLACE_STATUS_RECEIVED, data: receivedData});
 }
